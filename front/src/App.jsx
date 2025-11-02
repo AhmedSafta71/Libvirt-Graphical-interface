@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-
+import ConnectHypervisor from './components/ConnectHypervisor/ConnectHypervisor';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -9,8 +9,7 @@ function App() {
   return (
     <>
         <Header/>
-        <h1>My project</h1>
-
+        <ConnectHypervisor/>
         <Footer/>
 </>
   )

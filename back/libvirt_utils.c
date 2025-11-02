@@ -1,38 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <libvirt/libvirt.h>
-#include <libvirt/virterror.h>
-#include <string.h>
 #include "libvirt_utils.h"
+#include <libvirt/libvirt.h>
+#include <stdio.h>
+#include <string.h>
 
-const char* get_all_vms_json() {
-    static char buffer[2048];
-    buffer[0] = '\0';
+void build_libvirt_uri(char *uri, size_t size,
+                       const char *protocol,
+                       const char *user,
+                       const char *host,
+                       int port,
+                       const char *path)
+{
+    if (!protocol) protocol = "qemu+ssh";
+    if (!path) path = "system";
 
-    virConnectPtr conn = virConnectOpen("qemu:///system");
+    if (strcmp(protocol, "local") == 0 || strcmp(protocol, "qemu") == 0 || !host) {
+        snprintf(uri, size, "qemu:///system");
+        return;
+    }
+
+    if (user && host) {
+        if (port > 0)
+            snprintf(uri, size, "%s://%s@%s:%d/%s", protocol, user, host, port, path);
+        else
+            snprintf(uri, size, "%s://%s@%s/%s", protocol, user, host, path);
+    } else {
+        snprintf(uri, size, "%s://%s/%s", protocol, host, path);
+    }
+}
+
+int test_libvirt_connection(const char *uri) {
+    virConnectPtr conn = virConnectOpen(uri);
     if (!conn) {
-        snprintf(buffer, sizeof(buffer), "{\"error\":\"impossible de se connecter à libvirt\"}");
-        return buffer;
+        fprintf(stderr, "Failed to connect to hypervisor: %s\n", uri);
+        return -1;
     }
-
-    int numDomains = virConnectNumOfDomains(conn);
-    int *activeDomains = malloc(sizeof(int) * numDomains);
-    virConnectListDomains(conn, activeDomains, numDomains);
-
-    strcat(buffer, "[");
-    for (int i = 0; i < numDomains; i++) {
-        virDomainPtr dom = virDomainLookupByID(conn, activeDomains[i]);
-        const char *name = virDomainGetName(dom);
-        char entry[256];
-        snprintf(entry, sizeof(entry),
-                 "{\"name\":\"%s\",\"state\":\"running\"}%s",
-                 name, (i == numDomains - 1 ? "" : ","));
-        strcat(buffer, entry);
-        virDomainFree(dom);
-    }
-    strcat(buffer, "]");
-
-    free(activeDomains);
     virConnectClose(conn);
-    return buffer;
+    return 0;
 }

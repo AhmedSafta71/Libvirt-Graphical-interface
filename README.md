@@ -10,5 +10,9 @@ This means you don’t need to run npm init — the project configuration is alr
 
 To install all required dependencies, simply run:
 npm install -y
+npm install react react-dom
+npm install @vitejs/plugin-react --save-dev
+
 Once installation is complete, start the development server with:
 npm run dev  (Make sure  u are  in the  front directory)
+
