@@ -1,0 +1,13 @@
+.footer {
+  background-color: #1f2937; /* bg-gray-800 */
+  color: #d1d5db;           /* text-gray-300 */
+  padding: 0.75rem 0;       /* py-3 */
+  text-align: center;
+  margin-top: auto;
+  font-size: 0.875rem;      /* text-sm */
+  font-family: Arial, sans-serif;
+}
+
+.footer p {
+  margin: 0;
+}
