@@ -1,8 +1,9 @@
-#include "libvirt_utils.h"
+#include "libvirt-utils.h"
 #include <libvirt/libvirt.h>
 #include <stdio.h>
 #include <string.h>
-    
+
+// Construction  of the  uri to pass to the libvirt connection       
 void build_libvirt_uri(char *uri, size_t size,
                        const char *protocol,
                        const char *user,
@@ -27,7 +28,7 @@ void build_libvirt_uri(char *uri, size_t size,
         snprintf(uri, size, "%s://%s/%s", protocol, host, path);
     }
 }
-
+//  Test Libvirt connection  
 int test_libvirt_connection(const char *uri) {
     virConnectPtr conn = virConnectOpen(uri);
     if (!conn) {

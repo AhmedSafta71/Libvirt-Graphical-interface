@@ -2,7 +2,7 @@
 #include <string.h>
 #include <microhttpd.h>
 #include "routes.h"
-#include "libvirt_utils.h"
+#include "libvirt-utils.h"
 
 static int send_json_response(struct MHD_Connection *conn, const char *json) {
     struct MHD_Response *response = MHD_create_response_from_buffer(strlen(json), (void*)json, MHD_RESPMEM_PERSISTENT);
