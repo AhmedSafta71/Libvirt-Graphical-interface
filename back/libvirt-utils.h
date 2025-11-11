@@ -10,4 +10,6 @@ void build_libvirt_uri(char *uri, size_t size,
 
 int test_libvirt_connection(const char *uri);
 
+
 #endif
+
