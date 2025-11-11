@@ -1,5 +1,5 @@
-#include "http_server.h"
-#include "handler_connect.h"
+#include "http-server.h"
+#include "../connect_handler/handler_connect.h"
 #include <microhttpd.h>
 #include <stdio.h>
 #include <stdlib.h>

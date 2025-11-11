@@ -2,7 +2,7 @@
 #include <libvirt/libvirt.h>
 #include <stdio.h>
 #include <string.h>
-
+    
 void build_libvirt_uri(char *uri, size_t size,
                        const char *protocol,
                        const char *user,
