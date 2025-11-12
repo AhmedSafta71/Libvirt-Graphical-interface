@@ -1,9 +1,12 @@
 #include "libvirt-utils.h"
 #include <libvirt/libvirt.h>
+#include <libvirt/virterror.h>
 #include <stdio.h>
 #include <string.h>
 
-// Construction  of the  uri to pass to the libvirt connection       
+/* ------------------------------------------------------------------ */
+/* URI builder                                                        */
+/* ------------------------------------------------------------------ */
 void build_libvirt_uri(char *uri, size_t size,
                        const char *protocol,
                        const char *user,
@@ -11,10 +14,11 @@ void build_libvirt_uri(char *uri, size_t size,
                        int port,
                        const char *path)
 {
-    if (!protocol) protocol = "qemu+ssh";
-    if (!path) path = "system";
+    if (!protocol) protocol = "qemu";
+    if (!path)     path     = "system";
 
-    if (strcmp(protocol, "local") == 0 || strcmp(protocol, "qemu") == 0 || !host) {
+    /* local or no host → short form */
+    if (!host || strcmp(protocol, "local") == 0 || strcmp(protocol, "qemu") == 0) {
         snprintf(uri, size, "qemu:///system");
         return;
     }
@@ -28,13 +32,21 @@ void build_libvirt_uri(char *uri, size_t size,
         snprintf(uri, size, "%s://%s/%s", protocol, host, path);
     }
 }
-//  Test Libvirt connection  
-int test_libvirt_connection(const char *uri) {
+
+/* ------------------------------------------------------------------ */
+/* Connection tester – simple, no password                            */
+/* ------------------------------------------------------------------ */
+int test_libvirt_connection(const char *uri)
+{
+    fprintf(stderr, "Attempting to connect to %s\n", uri);
+
     virConnectPtr conn = virConnectOpen(uri);
     if (!conn) {
-        fprintf(stderr, "Failed to connect to hypervisor: %s\n", uri);
+        fprintf(stderr, "Failed to connect to %s\n", uri);
         return -1;
     }
+
+    fprintf(stdout, "Connected successfully to %s\n", uri);
     virConnectClose(conn);
     return 0;
 }

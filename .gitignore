@@ -6,7 +6,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-/backend/
+/back/*.exe
+/back/backend
+/back/*.out
+/back/*.o
+back/backend/
 front/node_modules
 dist
 dist-ssr
