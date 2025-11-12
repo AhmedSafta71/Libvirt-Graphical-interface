@@ -3,19 +3,14 @@ import axios from 'axios';
 
 const API_BASE = 'http://localhost:8080';
 
-export const getVMs = async () => {
-  const response = await axios.get(`${API_BASE}/vms`);
-  return response.data;
-};
 
-export const startVM = async (vmName) => {
-  return await axios.post(`${API_BASE}/vms/${vmName}/start`);
-};
 
-export const stopVM = async (vmName) => {
-  return await axios.post(`${API_BASE}/vms/${vmName}/stop`);
-};
+export async function connectHypervisor(payload) {
+  const res = await axios.post(`${API_BASE}/connect`, payload);
+  return res.data;
+}
 
-export const connectHypervisor = async (host, user) => {
-  return await axios.post(`${API_BASE}/connect`, { host, user });
-};
+export async function listAllVms(payload) {
+  const res = await axios.post(`${API_BASE}/listallvms`, payload);
+  return res.data;
+}
