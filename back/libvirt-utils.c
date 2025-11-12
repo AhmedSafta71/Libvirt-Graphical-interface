@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 /* ------------------------------------------------------------------ */
 /* URI builder                                                        */
 /* ------------------------------------------------------------------ */
@@ -34,7 +35,7 @@ void build_libvirt_uri(char *uri, size_t size,
 }
 
 /* ------------------------------------------------------------------ */
-/* Connection tester – simple, no password                            */
+/* Connection tester                           */
 /* ------------------------------------------------------------------ */
 int test_libvirt_connection(const char *uri)
 {
@@ -50,3 +51,9 @@ int test_libvirt_connection(const char *uri)
     virConnectClose(conn);
     return 0;
 }
+
+
+
+
+
+

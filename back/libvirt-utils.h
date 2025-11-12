@@ -13,6 +13,9 @@ void build_libvirt_uri(char *uri, size_t size,
 
 int test_libvirt_connection(const char *uri);
 
+/* Liste tous les VMs (actifs et inactifs) */
+char *list_all_vms(const char *uri);
+
 
 
 
