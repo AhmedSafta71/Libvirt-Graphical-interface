@@ -1,13 +1,15 @@
 // File: ListAllVms.jsx
 import React, { useState, useEffect } from "react";
-import { listAllVms } from "../../services/api"; // fonction axios vers /listallvms
+import { listAllVms } from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { getSession, clearSession } from "../../utils/session"; // gestion session frontend
+import { getSession, clearSession } from "../../utils/session";
+import CreateVmCard from "../CreateVmCard/CreateVmCard"; 
 
 const ListAllVms = () => {
   const [vms, setVms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCreateVmCard, setShowCreateVmCard] = useState(false); // contrôle affichage carte
 
   const navigate = useNavigate();
 
@@ -18,11 +20,9 @@ const ListAllVms = () => {
 
   useEffect(() => {
     const connection = getSession();
-
     if (!connection) {
-      // session expirée ou inexistante
       clearSession();
-      navigate("/"); // redirection vers page de connexion
+      navigate("/");
       return;
     }
 
@@ -48,7 +48,26 @@ const ListAllVms = () => {
   }, [navigate]);
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 position-relative">
+      {/* Overlay de création VM */}
+      {showCreateVmCard && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="position-relative w-75">
+            <CreateVmCard />
+            <button
+              className="btn btn-danger position-absolute top-0 end-0 m-2"
+              onClick={() => setShowCreateVmCard(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Liste des VMs */}
       <div className="row justify-content-center">
         <div className="col-lg-10 col-md-12">
           <div className="card shadow-sm border-0">
@@ -63,9 +82,7 @@ const ListAllVms = () => {
               {loading ? (
                 <div className="text-center py-4">Loading VMs...</div>
               ) : error ? (
-                <div className="alert alert-danger m-3" role="alert">
-                  {error}
-                </div>
+                <div className="alert alert-danger m-3">{error}</div>
               ) : (
                 <div className="table-responsive">
                   <table className="table table-hover mb-0">
@@ -121,6 +138,7 @@ const ListAllVms = () => {
               <button
                 className="btn btn-primary"
                 style={{ backgroundColor: colors.blue, borderColor: colors.blue }}
+                onClick={() => setShowCreateVmCard(true)}
               >
                 Add New VM
               </button>

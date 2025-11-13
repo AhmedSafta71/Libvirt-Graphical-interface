@@ -4,6 +4,7 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import ConnectHypervisor from './components/ConnectHypervisor/ConnectHypervisor';
 import ListAllVms from './components/ListAllVms/ListAllVms';
+import LandingPage from './components/LandingPage/LangingPage';
 
 function App() {
   return (
@@ -11,7 +12,8 @@ function App() {
       <Header />
       <div className="container my-4">
         <Routes>
-          <Route path="/" element={<ConnectHypervisor />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/connect" element={<ConnectHypervisor />} />
           <Route path="/listallvms" element={<ListAllVms />} />
         </Routes>
       </div>
