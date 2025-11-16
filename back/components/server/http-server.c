@@ -1,5 +1,6 @@
 #include "http-server.h"
 #include "../connect_handler/handler_connect.h"
+#include "../createVM/createVM.h"
 #include <microhttpd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,7 +81,11 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
             response_json = handle_connect(con_info->post_data);
         } else if (strcmp(url, "/listallvms") == 0) {
             response_json = handle_listallvms(con_info->post_data);
-        } else {
+
+        } else if (strcmp(url, "/createvm") == 0) {
+            response_json = handle_create_vm(con_info->post_data);
+        }
+         else {
             response_json = strdup("{\"error\":\"not found\"}");
         }
     } else {

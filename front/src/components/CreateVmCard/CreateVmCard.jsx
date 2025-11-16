@@ -16,20 +16,17 @@ const CreateVmCard = () => {
 
   // Exemple d’ISOs disponibles
   const isoList = [
-    "ubuntu-22.04.iso",
-    "centos-8.iso",
-    "debian-11.iso",
-    "fedora-36.iso",
+    "ubuntu-11.04-server-amd64.iso",
   ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Validation simple
-    if (!vmName || cpu < 1 || memory < 256 || memory > 4000 || !iso) {
+    if (!vmName || cpu < 1 || memory < 256 || memory > 4096 || !iso) {
       setMessage({
         type: "error",
-        text: "Veuillez remplir correctement tous les champs. Mémoire : 256-4000 MB",
+        text: "Veuillez remplir correctement tous les champs. Mémoire : 256-4096 MB",
       });
       return;
     }
@@ -91,7 +88,7 @@ const CreateVmCard = () => {
               max={4000}
               onChange={(e) => setMemory(parseInt(e.target.value, 10))}
             />
-            <small className="text-muted">Min: 256 MB, Max: 4000 MB</small>
+            <small className="text-muted">Min: 256 MB, Max: 4096 MB</small>
           </div>
 
           {/* ISO */}
