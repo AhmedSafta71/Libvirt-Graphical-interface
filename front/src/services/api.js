@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_BASE = 'http://100.101.56.57:8080';
+const API_BASE = 'http://100.82.183.59:8080';
 
 
 
@@ -15,3 +15,7 @@ export async function listAllVms(payload) {
   return res.data;
 }
 
+export async function createVm(payload) {
+  const res = await axios.post(`${API_BASE}/createvm`, payload);
+  return res.data;
+}
