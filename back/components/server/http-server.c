@@ -2,7 +2,8 @@
 #include "../connect_handler/handler_connect.h"
 #include "../createVM/createVM.h"
 #include "../displayVms_handler/displayvms_handler.h"
-#include "../vm_actions_handler/vm_actions_handler.h"   // doit contenir handle_deletevm()
+#include "../vm_actions_handler/vm_actions_handler.h"   
+#include "../session_handler_console/session_handler_console.h"         // <-- AJOUT POUR handle_consolevm()
 #include <microhttpd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +37,6 @@ static int send_json(struct MHD_Connection *connection, const char *json, int st
     return ret;
 }
 
-
 /**
  * Handler principal HTTP
  */
@@ -57,7 +57,7 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
         return ret;
     }
 
-    // Initialisation du contexte
+    // ⬅ Initialisation
     if (*con_cls == NULL) {
         struct connection_info_struct *con_info = malloc(sizeof(struct connection_info_struct));
         con_info->post_data = NULL;
@@ -86,7 +86,6 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
     //
     // ------ ROUTING ------
     //
-
     if (strcmp(method, "POST") == 0) {
 
         if (strcmp(url, "/connect") == 0) {
@@ -110,6 +109,9 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
         } else if (strcmp(url, "/deletevm") == 0) {
             response_json = handle_deletevm(con_info->post_data);
 
+        } else if (strcmp(url, "/consolevm") == 0) {    
+            response_json = handle_consolevm(con_info->post_data);
+
         } else {
             response_json = strdup("{\"error\":\"not found\"}");
         }
@@ -121,7 +123,6 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
     //
     // ------ RÉPONSE ------
     //
-
     int ret = send_json(connection, response_json, MHD_HTTP_OK);
 
     free(response_json);
@@ -131,7 +132,6 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
 
     return ret;
 }
-
 
 /**
  * Démarrage du serveur HTTP
@@ -147,7 +147,7 @@ int start_http_server(int port) {
     if (!daemon) return 1;
 
     printf("HTTP server running on http://0.0.0.0:%d\n", port);
-    printf("Routes: POST /connect, /listallvms, /createvm, /startvm, /stopvm, /shutdownvm, /deletevm\n");
+    printf("Routes: POST /connect, /listallvms, /createvm, /startvm, /stopvm, /shutdownvm, /deletevm, /consolevm\n");
 
     getchar();
     MHD_stop_daemon(daemon);

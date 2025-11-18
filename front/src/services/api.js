@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_BASE = 'http://192.168.160.136:8080';
+const API_BASE = 'http://100.82.183.59:8080';
 
 /**
  * Helper : construit l'URI libvirt à partir de la session
@@ -18,15 +18,12 @@ function buildLibvirtUri(session) {
     path = 'system',
   } = session;
 
-  // Cas le plus simple dans ton projet :
-  // - backend et libvirt sur la même machine -> qemu:///system
-  // On ignore host/user/port pour l'instant
+  // Cas simple : qemu:///system
   if (protocol === 'qemu') {
     return `${protocol}:///${path}`;
   }
 
-  // Si plus tard tu passes en qemu+ssh :
-  // qemu+ssh://user@host:port/path
+  // Support futur : qemu+ssh://user@host:port/path
   const userPart = user ? `${user}@` : '';
   const portPart = port ? `:${port}` : '';
   return `${protocol}://${userPart}${host}${portPart}/${path}`;
@@ -42,7 +39,6 @@ export async function connectHypervisor(payload) {
 
 /**
  * Liste toutes les VMs
- * payload = objet de session (ce que tu stockes avec setSession)
  */
 export async function listAllVms(payload) {
   const res = await axios.post(`${API_BASE}/listallvms`, payload);
@@ -51,7 +47,6 @@ export async function listAllVms(payload) {
 
 /**
  * Création d'une VM
- * payload = { vmName, cpu, memory, iso, disk_size, network, ... }
  */
 export async function createVm(payload) {
   const res = await axios.post(`${API_BASE}/createvm`, payload);
@@ -59,9 +54,7 @@ export async function createVm(payload) {
 }
 
 /**
- * Démarrer une VM
- * session = objet retourné par connectHypervisor (via getSession())
- * vmName  = nom de la VM à démarrer
+ * Start VM
  */
 export async function startVm(session, vmName) {
   const uri = buildLibvirtUri(session);
@@ -71,7 +64,7 @@ export async function startVm(session, vmName) {
 }
 
 /**
- * Arrêter (stop) une VM (arrêt “brutal” type poweroff)
+ * Stop VM
  */
 export async function stopVm(session, vmName) {
   const uri = buildLibvirtUri(session);
@@ -81,7 +74,7 @@ export async function stopVm(session, vmName) {
 }
 
 /**
- * Shutdown propre de la VM (équivalent ACPI / arrêt propre de l’OS)
+ * Shutdown VM (clean ACPI)
  */
 export async function shutdownVm(session, vmName) {
   const uri = buildLibvirtUri(session);
@@ -91,11 +84,20 @@ export async function shutdownVm(session, vmName) {
 }
 
 /**
- * Delete complet de la VM (stop + undefine + delete disk)
+ * Delete VM (undefine + delete disk)
  */
 export async function deleteVm(session, vmName) {
   const uri = buildLibvirtUri(session);
   const payload = { uri, vmName };
   const res = await axios.post(`${API_BASE}/deletevm`, payload);
+  return res.data;
+}
+
+
+export async function openConsole(session, vmName) {
+  const uri = buildLibvirtUri(session);
+  const payload = { uri, vmName };
+
+  const res = await axios.post(`${API_BASE}/consolevm`, payload);
   return res.data;
 }

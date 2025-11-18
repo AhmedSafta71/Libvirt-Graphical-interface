@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -I. -I./components/server -I./components/connect_handler -I./components/displayVms_handler -I./components/createVM -I./components/vm_actions_handler
+CFLAGS = -Wall -I. -I./components/server -I./components/connect_handler -I./components/displayVms_handler -I./components/createVM -I./components/vm_actions_handler -I./components/session_handler_console
 LIBS = -lmicrohttpd -lvirt -lcjson
 LIBS = -lmicrohttpd -lvirt -lcjson
  
@@ -9,7 +9,10 @@ SRC = main.c \
       libvirt-utils.c \
 	  components/displayVms_handler/displayvms_handler.c \
 	  components/createVM/createVM.c \
-	  components/vm_actions_handler/vm_actions_handler.c
+	  components/vm_actions_handler/vm_actions_handler.c \
+	  components/session_handler_console/session_handler_console.c
+
+LIBS = -lmicrohttpd -lvirt -lcjson
 
 	
 OUT = backend
