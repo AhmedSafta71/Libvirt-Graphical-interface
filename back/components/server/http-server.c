@@ -1,6 +1,8 @@
 #include "http-server.h"
 #include "../connect_handler/handler_connect.h"
 #include "../createVM/createVM.h"
+#include "../displayVms_handler/displayvms_handler.h"
+#include "../vm_actions_handler/vm_actions_handler.h"   // doit contenir handle_deletevm()
 #include <microhttpd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,13 +16,15 @@ struct connection_info_struct {
 };
 
 /**
- * Envoie une réponse JSON avec les bons headers CORS
+ * Envoie une réponse JSON avec CORS
  */
 static int send_json(struct MHD_Connection *connection, const char *json, int status_code) {
-    struct MHD_Response *response = MHD_create_response_from_buffer(strlen(json), (void *)json, MHD_RESPMEM_MUST_COPY);
+    struct MHD_Response *response = MHD_create_response_from_buffer(
+        strlen(json), (void *)json, MHD_RESPMEM_MUST_COPY);
+
     if (!response) return MHD_NO;
 
-    // ✅ En-têtes CORS
+    // Headers CORS
     MHD_add_response_header(response, "Content-Type", "application/json");
     MHD_add_response_header(response, "Access-Control-Allow-Origin", "*");
     MHD_add_response_header(response, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -32,14 +36,16 @@ static int send_json(struct MHD_Connection *connection, const char *json, int st
     return ret;
 }
 
+
 /**
- * Gère les connexions entrantes
+ * Handler principal HTTP
  */
 static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *connection,
                                             const char *url, const char *method,
                                             const char *version, const char *upload_data,
                                             size_t *upload_data_size, void **con_cls) {
-    // ✅ Répond immédiatement aux requêtes OPTIONS (préflight CORS)
+
+    // OPTIONS (CORS preflight)
     if (strcmp(method, "OPTIONS") == 0) {
         struct MHD_Response *resp = MHD_create_response_from_buffer(0, "", MHD_RESPMEM_PERSISTENT);
         MHD_add_response_header(resp, "Access-Control-Allow-Origin", "*");
@@ -51,7 +57,7 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
         return ret;
     }
 
-    // Initialisation du contexte de connexion
+    // Initialisation du contexte
     if (*con_cls == NULL) {
         struct connection_info_struct *con_info = malloc(sizeof(struct connection_info_struct));
         con_info->post_data = NULL;
@@ -62,40 +68,62 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
 
     struct connection_info_struct *con_info = *con_cls;
 
-    // Accumule les données POST
+    // Accumulation des données POST
     if (*upload_data_size != 0) {
         size_t s = *upload_data_size;
+
         con_info->post_data = realloc(con_info->post_data, con_info->post_size + s + 1);
         memcpy(con_info->post_data + con_info->post_size, upload_data, s);
         con_info->post_size += s;
         con_info->post_data[con_info->post_size] = '\0';
+
         *upload_data_size = 0;
         return MHD_YES;
     }
 
-    // Gestion des routes
     char *response_json = NULL;
 
+    //
+    // ------ ROUTING ------
+    //
+
     if (strcmp(method, "POST") == 0) {
+
         if (strcmp(url, "/connect") == 0) {
             response_json = handle_connect(con_info->post_data);
+
         } else if (strcmp(url, "/listallvms") == 0) {
             response_json = handle_listallvms(con_info->post_data);
 
         } else if (strcmp(url, "/createvm") == 0) {
             response_json = handle_create_vm(con_info->post_data);
-        }
-         else {
+
+        } else if (strcmp(url, "/startvm") == 0) {
+            response_json = handle_startvm(con_info->post_data);
+
+        } else if (strcmp(url, "/stopvm") == 0) {
+            response_json = handle_stopvm(con_info->post_data);
+
+        } else if (strcmp(url, "/shutdownvm") == 0) {
+            response_json = handle_shutdownvm(con_info->post_data);
+
+        } else if (strcmp(url, "/deletevm") == 0) {
+            response_json = handle_deletevm(con_info->post_data);
+
+        } else {
             response_json = strdup("{\"error\":\"not found\"}");
         }
+
     } else {
         response_json = strdup("{\"error\":\"method not allowed\"}");
     }
 
-    // Envoie de la réponse JSON
+    //
+    // ------ RÉPONSE ------
+    //
+
     int ret = send_json(connection, response_json, MHD_HTTP_OK);
 
-    // Libération mémoire
     free(response_json);
     free(con_info->post_data);
     free(con_info);
@@ -103,6 +131,7 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
 
     return ret;
 }
+
 
 /**
  * Démarrage du serveur HTTP
@@ -118,7 +147,8 @@ int start_http_server(int port) {
     if (!daemon) return 1;
 
     printf("HTTP server running on http://0.0.0.0:%d\n", port);
-    printf("Available routes: POST /connect, POST /listallvms\n");
+    printf("Routes: POST /connect, /listallvms, /createvm, /startvm, /stopvm, /shutdownvm, /deletevm\n");
+
     getchar();
     MHD_stop_daemon(daemon);
     return 0;

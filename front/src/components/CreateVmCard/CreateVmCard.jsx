@@ -19,7 +19,10 @@ const CreateVmCard = () => {
   const [loading, setLoading] = useState(false);
 
   // Exemple d’ISOs disponibles
-  const isoList = ["ubuntu-11.04-server-amd64.iso","debian-13.1.0-amd64-netinst.iso"];
+  const isoList = [
+    "ubuntu-11.04-server-amd64.iso",
+    "debian-13.1.0-amd64-netinst.iso",
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,8 +50,7 @@ const CreateVmCard = () => {
       memory,
       iso,
       disk_size: diskSize, // ⚠️ correspond à j_disk_size côté C
-      network,             // nouveau champ pour le backend
-      // éventuellement protocol/user/host/port/path plus tard
+      network, // nouveau champ pour le backend
     };
 
     try {
@@ -88,141 +90,154 @@ const CreateVmCard = () => {
   };
 
   return (
-    <div className="card shadow-sm border-0">
+    // wrapper pour centrer la carte et limiter la largeur
+    <div className="d-flex justify-content-center">
       <div
-        className="card-header text-center py-3"
-        style={{ backgroundColor: colors.blue, color: "#fff" }}
+        className="card shadow-sm border-0"
+        style={{
+          maxWidth: "480px",   // largeur max de la carte
+          width: "100%",       // prend toute la largeur disponible jusqu'à 480px
+          fontSize: "0.9rem",  // texte un peu plus petit
+        }}
       >
-        <h4 className="mb-0">Create New Virtual Machine</h4>
-      </div>
-      <div className="card-body p-4">
-        <form onSubmit={handleSubmit}>
-          {/* VM Name */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">VM Name</label>
-            <input
-              type="text"
-              className="form-control"
-              value={vmName}
-              onChange={(e) => setVmName(e.target.value)}
-              placeholder="Enter VM name"
-            />
-          </div>
+        <div
+          className="card-header text-center py-2"
+          style={{ backgroundColor: colors.blue, color: "#fff" }}
+        >
+          <h5 className="mb-0">Create New VM</h5>
+        </div>
 
-          {/* CPU */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">CPU Cores</label>
-            <input
-              type="number"
-              className="form-control"
-              value={cpu}
-              min={1}
-              max={32}
-              onChange={(e) => setCpu(parseInt(e.target.value, 10) || 1)}
-            />
-          </div>
+        <div className="card-body p-3">
+          <form onSubmit={handleSubmit}>
+            {/* VM Name */}
+            <div className="mb-2">
+              <label className="form-label fw-semibold">VM Name</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                value={vmName}
+                onChange={(e) => setVmName(e.target.value)}
+                placeholder="Enter VM name"
+              />
+            </div>
 
-          {/* Memory */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Memory (MB)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={memory}
-              min={256}
-              max={4096}
-              onChange={(e) => setMemory(parseInt(e.target.value, 10) || 256)}
-            />
-            <small className="text-muted">Min: 256 MB, Max: 4096 MB</small>
-          </div>
+            {/* CPU & Memory sur la même ligne pour gagner de la place */}
+            <div className="row">
+              <div className="col-6 mb-2">
+                <label className="form-label fw-semibold">CPU Cores</label>
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  value={cpu}
+                  min={1}
+                  max={32}
+                  onChange={(e) => setCpu(parseInt(e.target.value, 10) || 1)}
+                />
+              </div>
+              <div className="col-6 mb-2">
+                <label className="form-label fw-semibold">Memory (MB)</label>
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  value={memory}
+                  min={256}
+                  max={4096}
+                  onChange={(e) =>
+                    setMemory(parseInt(e.target.value, 10) || 256)
+                  }
+                />
+                <small className="text-muted">256 - 4096</small>
+              </div>
+            </div>
 
-          {/* Disk Size */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Disk Size (MB)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={diskSize}
-              min={1024}
-              max={102400}
-              onChange={(e) =>
-                setDiskSize(parseInt(e.target.value, 10) || 1024)
-              }
-            />
-            <small className="text-muted">
-              Min: 1024 MB (1 Go), Max: 102400 MB (100 Go)
-            </small>
-          </div>
+            {/* Disk Size & Network sur la même ligne */}
+            <div className="row">
+              <div className="col-6 mb-2">
+                <label className="form-label fw-semibold">Disk (MB)</label>
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  value={diskSize}
+                  min={1024}
+                  max={102400}
+                  onChange={(e) =>
+                    setDiskSize(parseInt(e.target.value, 10) || 1024)
+                  }
+                />
+                <small className="text-muted">1024 - 102400</small>
+              </div>
+              <div className="col-6 mb-2">
+                <label className="form-label fw-semibold">Network</label>
+                <select
+                  className="form-select form-select-sm"
+                  value={network}
+                  onChange={(e) => setNetwork(e.target.value)}
+                >
+                  <option value="default">default</option>
+                </select>
+              </div>
+            </div>
 
-          {/* Network */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Network</label>
-            <select
-              className="form-select"
-              value={network}
-              onChange={(e) => setNetwork(e.target.value)}
+            {/* ISO */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Select ISO</label>
+              <select
+                className="form-select form-select-sm"
+                value={iso}
+                onChange={(e) => setIso(e.target.value)}
+              >
+                <option value="">-- Select ISO --</option>
+                {isoList.map((item, idx) => (
+                  <option key={idx} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Buttons */}
+            <div className="d-flex gap-2">
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm flex-grow-1"
+                style={{
+                  backgroundColor: colors.blue,
+                  borderColor: colors.blue,
+                }}
+                disabled={loading}
+              >
+                {loading ? "Creating..." : "Create VM"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => {
+                  setVmName("");
+                  setCpu(1);
+                  setMemory(256);
+                  setIso("");
+                  setDiskSize(8192);
+                  setNetwork("default");
+                  setMessage(null);
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </form>
+
+          {/* Feedback Message */}
+          {message && (
+            <div
+              className={`alert mt-3 mb-0 ${
+                message.type === "success" ? "alert-success" : "alert-danger"
+              }`}
+              role="alert"
             >
-              {/* Pour l'instant un seul réseau, mais évolutif */}
-              <option value="default">default</option>
-            </select>
-          </div>
-
-          {/* ISO */}
-          <div className="mb-4">
-            <label className="form-label fw-semibold">Select ISO</label>
-            <select
-              className="form-select"
-              value={iso}
-              onChange={(e) => setIso(e.target.value)}
-            >
-              <option value="">-- Select ISO --</option>
-              {isoList.map((item, idx) => (
-                <option key={idx} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Buttons */}
-          <div className="d-flex gap-2">
-            <button
-              type="submit"
-              className="btn btn-primary flex-grow-1"
-              style={{ backgroundColor: colors.blue, borderColor: colors.blue }}
-              disabled={loading}
-            >
-              {loading ? "Creating..." : "Create VM"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={() => {
-                setVmName("");
-                setCpu(1);
-                setMemory(256);
-                setIso("");
-                setDiskSize(8192);
-                setNetwork("default");
-                setMessage(null);
-              }}
-            >
-              Reset
-            </button>
-          </div>
-        </form>
-
-        {/* Feedback Message */}
-        {message && (
-          <div
-            className={`alert mt-4 ${
-              message.type === "success" ? "alert-success" : "alert-danger"
-            }`}
-            role="alert"
-          >
-            {message.text}
-          </div>
-        )}
+              {message.text}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

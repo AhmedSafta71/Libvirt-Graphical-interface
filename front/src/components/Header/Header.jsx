@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-virt-banner.png";
-import { getSession, clearSession } from "../../utils/session"; // gestion session front
+import { getSession, clearSession } from "../../utils/session";
 
 export default function Header() {
-  const [connected, setConnected] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const session = getSession();
-    setConnected(!!session); // true si connecté
-  }, []);
+  // 👉 On lit la session à chaque rendu
+  const session = getSession();
+  const connected = !!session;
 
   const handleConnectClick = () => {
     if (connected) {
       // Déconnexion
       clearSession();
-      setConnected(false);
-      navigate("/connect"); // redirection vers page de connexion
+      // après clearSession, au prochain rendu connected sera false
+      navigate("/connect");
     } else {
       // Redirection vers page de connexion
       navigate("/connect");
@@ -39,13 +37,13 @@ export default function Header() {
           </div>
           <nav className="d-flex gap-4">
             {connected && (
-              <a
-                href="#"
-                className="text-white text-decoration-none fw-semibold"
+              <button
+                type="button"
+                className="btn btn-link text-white text-decoration-none fw-semibold p-0"
                 onClick={() => navigate("/listallvms")}
               >
                 Machines
-              </a>
+              </button>
             )}
             <button
               className="btn btn-outline-light fw-semibold"
