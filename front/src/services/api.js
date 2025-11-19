@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_BASE = 'http://100.82.183.59:8080';
+const API_BASE = 'http://192.168.160.136:8080';
 
 /**
  * Helper : construit l'URI libvirt à partir de la session

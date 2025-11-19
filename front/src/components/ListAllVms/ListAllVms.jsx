@@ -72,7 +72,7 @@ const ListAllVms = () => {
         const host = window.location.hostname;
 
         // URL noVNC complète et correcte
-        const url = `http://${host}:${wsPort}/vnc.html?host=${host}&port=${wsPort}&path=websockify&autoconnect=1`;
+        const url = `https://${host}:${wsPort}/vnc.html?host=${host}&port=${wsPort}&path=websockify&autoconnect=1`;
 
         console.log("Opening Console:", url);
 
