@@ -2,44 +2,45 @@
 
 Interface web complète en React + C/libvirt permettant de gérer un hyperviseur KVM :
 
-✔ Lister les machines virtuelles
-✔ Créer une VM
-✔ Démarrer / arrêter / supprimer
-✔ Console graphique via noVNC + TLS
-✔ Migration live d’une VM vers un autre hyperviseur via SSH sans mot de passe
-✔ Backend 100% en C (libvirt + microhttpd + JSON)
-✔ Frontend moderne en React (Vite.js)
+- ✔ Lister les machines virtuelles  
+- ✔ Créer une VM  
+- ✔ Démarrer / arrêter / supprimer  
+- ✔ Console graphique via **noVNC + TLS**  
+- ✔ Migration *live* via **SSH sans mot de passe**  
+- ✔ Backend 100% en C (libvirt + microhttpd + JSON)  
+- ✔ Frontend moderne en React (Vite.js)  
 
 Projet réalisé dans le cadre du module Virtualisation – INSA CVL.
 
 🏗️ 1. Architecture du projet
+
 Libvirt-Graphical-interface/
-├── back/                   
-│   ├── main.c
-│   ├── makefile
-│   ├── libvirt-utils.c/h
-│   ├── routes.c/h
-│   └── components/
-│       ├── connect_handler/
-│       ├── createVM/
-│       ├── displayVms_handler/
-│       ├── vm_actions_handler/
-│       ├── session_handler_console/   # Gestion noVNC + TLS
-│       └── migratevm_handler/         # Migration live KVM
+├── back/
+│ ├── main.c
+│ ├── makefile
+│ ├── libvirt-utils.c/h
+│ ├── routes.c/h
+│ └── components/
+│ ├── connect_handler/
+│ ├── createVM/
+│ ├── displayVms_handler/
+│ ├── vm_actions_handler/
+│ ├── session_handler_console/ # Gestion noVNC + TLS
+│ └── migratevm_handler/ # Migration live KVM
 │
-├── front/                  
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ConnectHypervisor
-│   │   │   ├── CreateVmCard
-│   │   │   ├── ListAllVms
-│   │   │   ├── MigrateVmCard
-│   │   │   ├── Header / Footer
-│   │   │   └── LandingPage
-│   │   ├── services/api.js
-│   │   └── utils/session.js
-│   ├── public/
-│   └── package.json
+├── front/
+│ ├── src/
+│ │ ├── components/
+│ │ │ ├── ConnectHypervisor
+│ │ │ ├── CreateVmCard
+│ │ │ ├── ListAllVms
+│ │ │ ├── MigrateVmCard
+│ │ │ ├── Header / Footer
+│ │ │ └── LandingPage
+│ │ ├── services/api.js
+│ │ └── utils/session.js
+│ ├── public/
+│ └── package.json
 │
 └── README.md
 
