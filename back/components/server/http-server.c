@@ -4,6 +4,7 @@
 #include "../displayVms_handler/displayvms_handler.h"
 #include "../vm_actions_handler/vm_actions_handler.h"   
 #include "../session_handler_console/session_handler_console.h"         // <-- AJOUT POUR handle_consolevm()
+#include "../migratevm_handler/migratevm_handler.h"
 #include <microhttpd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,7 +113,9 @@ static enum MHD_Result answer_to_connection(void *cls, struct MHD_Connection *co
         } else if (strcmp(url, "/consolevm") == 0) {    
             response_json = handle_consolevm(con_info->post_data);
 
-        } else {
+        } else if (strcmp(url, "/migratevm") == 0) {
+            response_json = handle_migratevm(con_info->post_data);
+        }  else {
             response_json = strdup("{\"error\":\"not found\"}");
         }
 

@@ -101,3 +101,10 @@ export async function openConsole(session, vmName) {
   const res = await axios.post(`${API_BASE}/consolevm`, payload);
   return res.data;
 }
+
+export async function migrateVm(session, vmName, destUri) {
+  const uri = buildLibvirtUri(session);
+  const payload = { uri, vmName, destUri };
+  const res = await axios.post(`${API_BASE}/migratevm`, payload);
+  return res.data;
+}

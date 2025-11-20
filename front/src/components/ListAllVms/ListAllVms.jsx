@@ -7,17 +7,23 @@ import {
   shutdownVm,
   deleteVm,
   openConsole,
+  migrateVm,
 } from "../../services/api";
 
 import { useNavigate } from "react-router-dom";
 import { getSession, clearSession } from "../../utils/session";
 import CreateVmCard from "../CreateVmCard/CreateVmCard";
+import MigrateVmCard from "../MigrateVmCard/MigrateVmCard";
 
 const ListAllVms = () => {
   const [vms, setVms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateVmCard, setShowCreateVmCard] = useState(false);
+
+  // migration
+  const [showMigrateCard, setShowMigrateCard] = useState(false);
+  const [vmToMigrate, setVmToMigrate] = useState(null);
 
   const navigate = useNavigate();
   const colors = { blue: "#003366", red: "#dc2626" };
@@ -61,21 +67,16 @@ const ListAllVms = () => {
       const result = await openConsole(connection, vmName);
 
       if (result.status === "ok") {
-        // backend renvoie websocketPort et port
         const wsPort = result.websocketPort || result.port;
         if (!wsPort) {
           alert("Console error: websocket port missing!");
           return;
         }
 
-        // utiliser le host actuel (pas de hardcoding)
         const host = window.location.hostname;
-
-        // URL noVNC complète et correcte
         const url = `https://${host}:${wsPort}/vnc.html?host=${host}&port=${wsPort}&path=websockify&autoconnect=1`;
 
         console.log("Opening Console:", url);
-
         window.open(url, "_blank");
       } else {
         alert("Console error: " + result.message);
@@ -144,11 +145,47 @@ const ListAllVms = () => {
   };
 
   // ============================================================
+  // 🔥 MIGRATION HANDLERS
+  // ============================================================
+  const openMigrateModal = (vmName) => {
+    setVmToMigrate(vmName);
+    setShowMigrateCard(true);
+  };
+
+  const closeMigrateModal = () => {
+    setVmToMigrate(null);
+    setShowMigrateCard(false);
+  };
+
+  const handleConfirmMigrate = async (destUri) => {
+    try {
+      setLoading(true);
+      const connection = getSession();
+      const result = await migrateVm(connection, vmToMigrate, destUri);
+      console.log("Migration result:", result);
+
+      if (result.status === "ok") {
+        alert(`VM "${vmToMigrate}" migrated to ${destUri}`);
+      } else {
+        alert(`Migration error: ${result.message || "unknown error"}`);
+      }
+      await fetchVms();
+    } catch (err) {
+      console.error("Migration error:", err);
+      alert("Failed to migrate VM.");
+    } finally {
+      setLoading(false);
+      closeMigrateModal();
+    }
+  };
+
+  // ============================================================
   // 🔹 UI
   // ============================================================
   return (
     <div className="container py-5 position-relative" style={{ minHeight: "80vh" }}>
       
+      {/* Create VM Modal */}
       {showCreateVmCard && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
@@ -166,6 +203,22 @@ const ListAllVms = () => {
         </div>
       )}
 
+      {/* Migrate VM Modal */}
+      {showMigrateCard && vmToMigrate && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1060 }}
+        >
+          <div className="position-relative w-75">
+            <MigrateVmCard
+              vmName={vmToMigrate}
+              onConfirm={handleConfirmMigrate}
+              onCancel={closeMigrateModal}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="row justify-content-center h-100">
         <div className="col-lg-10 col-md-12 h-100">
           <div className="card shadow-sm border-0 d-flex flex-column h-100">
@@ -178,6 +231,12 @@ const ListAllVms = () => {
             </div>
 
             <div className="card-body p-0 flex-grow-1 d-flex flex-column">
+              {error && (
+                <div className="alert alert-danger m-3">
+                  {error}
+                </div>
+              )}
+
               <div className="table-responsive flex-grow-1">
                 <table className="table table-hover mb-0">
                   <thead className="table-light">
@@ -213,6 +272,14 @@ const ListAllVms = () => {
                               Open Console
                             </button>
                           )}
+
+                          {/* Bouton migrate (on peut autoriser même VM arrêtée) */}
+                          <button
+                            className="btn btn-outline-info btn-sm me-2"
+                            onClick={() => openMigrateModal(vm.name)}
+                          >
+                            Migrate
+                          </button>
 
                           {vm.active ? (
                             <>
