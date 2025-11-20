@@ -29,6 +29,37 @@ function buildLibvirtUri(session) {
   return `${protocol}://${userPart}${host}${portPart}/${path}`;
 }
 
+
+// function buildLibvirtUri(session) {
+//   // Cas simple : aucune session → fallback local qemu
+//   if (!session) {
+//     return "qemu:///system";
+//   }
+
+//   const {
+//     protocol,
+//     user,
+//     host,
+//     port,
+//     path = "system",
+//   } = session;
+
+//   // Si pas de protocole ou protocole qemu → local qemu
+//   if (!protocol || protocol === "qemu") {
+//     return `qemu:///${path}`;
+//   }
+
+//   // Si host est undefined / null / chaîne "undefined" → fallback qemu:///system
+//   if (!host || host === "undefined") {
+//     return "qemu:///system";
+//   }
+
+//   // Cas avancé : qemu+ssh, etc.
+//   const userPart = user ? `${user}@` : "";
+//   const portPart = port ? `:${port}` : "";
+//   return `${protocol}://${userPart}${host}${portPart}/${path}`;
+// }
+
 /**
  * Connexion à l'hyperviseur
  */
@@ -39,8 +70,7 @@ export async function connectHypervisor(payload) {
 
 /**
  * Liste toutes les VMs
- */
-export async function listAllVms(payload) {
+ */ export async function listAllVms(payload) {
   const res = await axios.post(`${API_BASE}/listallvms`, payload);
   return res.data;
 }

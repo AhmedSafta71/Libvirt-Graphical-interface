@@ -19,14 +19,18 @@ const ListAllVms = () => {
   const [vms, setVms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [showCreateVmCard, setShowCreateVmCard] = useState(false);
 
   // migration
   const [showMigrateCard, setShowMigrateCard] = useState(false);
   const [vmToMigrate, setVmToMigrate] = useState(null);
+  const [migrationStatus, setMigrationStatus] = useState(null); // 'running' | 'success' | 'error'
+  const [migrationMessage, setMigrationMessage] = useState("");
+  const [migrationSubmitting, setMigrationSubmitting] = useState(false);
 
   const navigate = useNavigate();
-  const colors = { blue: "#003366", red: "#dc2626" };
+  const colors = { blue: "#003366", red: "#dc2626", greenDark: "#0b7a3b" };
 
   // ============================================================
   // 🔹 FETCH VMs
@@ -75,6 +79,8 @@ const ListAllVms = () => {
 
         const host = window.location.hostname;
         const url = `https://${host}:${wsPort}/vnc.html?host=${host}&port=${wsPort}&path=websockify&autoconnect=1`;
+        // const url = `https://${host}:${wsPort}/vnc.html?host=${host}&port=${wsPort}&path=websockify&autoconnect=1`;
+
 
         console.log("Opening Console:", url);
         window.open(url, "_blank");
@@ -150,32 +156,52 @@ const ListAllVms = () => {
   const openMigrateModal = (vmName) => {
     setVmToMigrate(vmName);
     setShowMigrateCard(true);
+    // reset messages à chaque ouverture
+    setMigrationStatus(null);
+    setMigrationMessage("");
   };
 
   const closeMigrateModal = () => {
     setVmToMigrate(null);
     setShowMigrateCard(false);
+    setMigrationSubmitting(false);
   };
 
   const handleConfirmMigrate = async (destUri) => {
     try {
-      setLoading(true);
+      setMigrationSubmitting(true);
+      setMigrationStatus("running");
+      setMigrationMessage(
+        `Migrating "${vmToMigrate}" to ${destUri} ...`
+      );
+
       const connection = getSession();
       const result = await migrateVm(connection, vmToMigrate, destUri);
       console.log("Migration result:", result);
 
       if (result.status === "ok") {
-        alert(`VM "${vmToMigrate}" migrated to ${destUri}`);
+        setMigrationStatus("success");
+        setMigrationMessage(
+          `Migration of "${vmToMigrate}" to ${destUri} successful.`
+        );
+
+        // reload la liste des VMs pour voir le résultat
+        await fetchVms();
+
+        // fermer la carte de migration
+        closeMigrateModal();
       } else {
-        alert(`Migration error: ${result.message || "unknown error"}`);
+        setMigrationStatus("error");
+        setMigrationMessage(
+          `Migration error: ${result.message || "unknown error"}`
+        );
       }
-      await fetchVms();
     } catch (err) {
       console.error("Migration error:", err);
-      alert("Failed to migrate VM.");
+      setMigrationStatus("error");
+      setMigrationMessage("Failed to migrate VM.");
     } finally {
-      setLoading(false);
-      closeMigrateModal();
+      setMigrationSubmitting(false);
     }
   };
 
@@ -184,7 +210,6 @@ const ListAllVms = () => {
   // ============================================================
   return (
     <div className="container py-5 position-relative" style={{ minHeight: "80vh" }}>
-      
       {/* Create VM Modal */}
       {showCreateVmCard && (
         <div
@@ -214,6 +239,7 @@ const ListAllVms = () => {
               vmName={vmToMigrate}
               onConfirm={handleConfirmMigrate}
               onCancel={closeMigrateModal}
+              isSubmitting={migrationSubmitting}
             />
           </div>
         </div>
@@ -222,7 +248,6 @@ const ListAllVms = () => {
       <div className="row justify-content-center h-100">
         <div className="col-lg-10 col-md-12 h-100">
           <div className="card shadow-sm border-0 d-flex flex-column h-100">
-            
             <div
               className="card-header text-center py-3"
               style={{ backgroundColor: colors.blue, color: "#fff" }}
@@ -231,9 +256,27 @@ const ListAllVms = () => {
             </div>
 
             <div className="card-body p-0 flex-grow-1 d-flex flex-column">
+              {/* Banner d’erreur globale */}
               {error && (
                 <div className="alert alert-danger m-3">
                   {error}
+                </div>
+              )}
+
+              {/* Bannières de migration */}
+              {migrationStatus === "running" && (
+                <div className="alert alert-info m-3">
+                  {migrationMessage || "Migration in progress..."}
+                </div>
+              )}
+              {migrationStatus === "success" && (
+                <div className="alert alert-success m-3">
+                  {migrationMessage || "Migration successful."}
+                </div>
+              )}
+              {migrationStatus === "error" && (
+                <div className="alert alert-danger m-3">
+                  {migrationMessage || "Migration failed."}
                 </div>
               )}
 
@@ -256,14 +299,15 @@ const ListAllVms = () => {
 
                         <td>
                           <span
-                            className={`badge ${vm.active ? "bg-success" : "bg-secondary"}`}
+                            className={`badge ${
+                              vm.active ? "bg-success" : "bg-secondary"
+                            }`}
                           >
                             {vm.active ? "Running" : "Stopped"}
                           </span>
                         </td>
 
                         <td className="text-center">
-
                           {vm.active && (
                             <button
                               className="btn btn-primary btn-sm me-2"
@@ -273,9 +317,23 @@ const ListAllVms = () => {
                             </button>
                           )}
 
-                          {/* Bouton migrate (on peut autoriser même VM arrêtée) */}
+                          {/* Bouton migrate vert foncé + petit effet "bounce" */}
                           <button
-                            className="btn btn-outline-info btn-sm me-2"
+                            className="btn btn-sm me-2 text-white"
+                            style={{
+                              backgroundColor: colors.greenDark,
+                              borderColor: colors.greenDark,
+                              transition: "transform 0.1s ease",
+                            }}
+                            onMouseDown={(e) =>
+                              (e.currentTarget.style.transform = "scale(0.95)")
+                            }
+                            onMouseUp={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.transform = "scale(1)")
+                            }
                             onClick={() => openMigrateModal(vm.name)}
                           >
                             Migrate
@@ -321,12 +379,10 @@ const ListAllVms = () => {
                               </button>
                             </>
                           )}
-
                         </td>
                       </tr>
                     ))}
                   </tbody>
-
                 </table>
               </div>
             </div>
@@ -334,17 +390,18 @@ const ListAllVms = () => {
             <div className="card-footer bg-white text-center py-3 mt-auto">
               <button
                 className="btn btn-primary"
-                style={{ backgroundColor: colors.blue, borderColor: colors.blue }}
+                style={{
+                  backgroundColor: colors.blue,
+                  borderColor: colors.blue,
+                }}
                 onClick={() => setShowCreateVmCard(true)}
               >
                 Add New VM
               </button>
             </div>
-
           </div>
         </div>
       </div>
-
     </div>
   );
 };

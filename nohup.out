@@ -1,0 +1,24 @@
+Using local websockify at /home/user/noVNC/utils/websockify/run
+Starting webserver and WebSockets proxy on port 6902
+/home/user/noVNC/utils/websockify/websockify/websocket.py:31: UserWarning: no 'numpy' module, HyBi protocol will be slower
+  warnings.warn("no 'numpy' module, HyBi protocol will be slower")
+WebSocket server settings:
+  - Listen on :6902
+  - Web server. Web root: /home/user/noVNC
+  - SSL/TLS support
+  - Deny non-SSL/TLS connections
+  - proxying from :6902 to 127.0.0.1:5900
+
+
+Navigate to this URL:
+
+    https://ahmed:6902/vnc.html?host=ahmed&port=6902
+
+Press Ctrl-C to exit
+
+
+Port 6902 in use. Try --listen PORT
+In exit
+
+Terminating WebSockets proxy (20379)
+/home/user/noVNC/utils/novnc_proxy: ligne 81 : kill: (20379) - Aucun processus ayant ce numéro
