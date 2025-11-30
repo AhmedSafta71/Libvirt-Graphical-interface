@@ -1,4 +1,4 @@
-📘 Libvirt Graphical Interface
+📘 1. Introduction au project : Libvirt Graphical Interface
 
 Interface web complète en React + C/libvirt permettant de gérer un hyperviseur KVM :
 
@@ -10,39 +10,9 @@ Interface web complète en React + C/libvirt permettant de gérer un hyperviseur
 - ✔ Backend 100% en C (libvirt + microhttpd + JSON)  
 - ✔ Frontend moderne en React (Vite.js)  
 
-Projet réalisé dans le cadre du module Virtualisation – INSA CVL.
+Projet réalisé dans le cadre du module Virtualisation – INSA CVL
 
-🏗️ 1. Architecture du projet
 
-Libvirt-Graphical-interface/
-├── back/
-│ ├── main.c
-│ ├── makefile
-│ ├── libvirt-utils.c/h
-│ ├── routes.c/h
-│ └── components/
-│ ├── connect_handler/
-│ ├── createVM/
-│ ├── displayVms_handler/
-│ ├── vm_actions_handler/
-│ ├── session_handler_console/ # Gestion noVNC + TLS
-│ └── migratevm_handler/ # Migration live KVM
-│
-├── front/
-│ ├── src/
-│ │ ├── components/
-│ │ │ ├── ConnectHypervisor
-│ │ │ ├── CreateVmCard
-│ │ │ ├── ListAllVms
-│ │ │ ├── MigrateVmCard
-│ │ │ ├── Header / Footer
-│ │ │ └── LandingPage
-│ │ ├── services/api.js
-│ │ └── utils/session.js
-│ ├── public/
-│ └── package.json
-│
-└── README.md
 
 📦 2. Prérequis
 ⛓️ Système conseillé
@@ -241,7 +211,7 @@ Libvirt tournant en mode non-root via qemu:///system
 📜 9. Licence
 
 Projet académique – INSA Centre Val de Loire — Filière Systèmes & Réseaux — Virtualisation
-Auteurs : Yacine SAID & Ahmed
+Auteurs : Yacine SAID & Ahmed SAFTA
 
 🏁 10. Roadmap (Améliorations futures)
 
