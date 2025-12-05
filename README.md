@@ -1,3 +1,13 @@
+## Project  Demo : watch the two videos 
+
+##  Video 1 : Virtual Machines management
+
+https://player.cloudinary.com/embed/?cloud_name=paypos&public_id=video-libvirt-creation-vmnovnc-ezgif.com-video-speed_gb8sgz&profile=cld-default
+
+##  Video 2 : Live migration
+https://player.cloudinary.com/embed/?cloud_name=paypos&public_id=migration-libvirt-russie-ezgif.com-video-speed_1_vbqzku&profile=cld-default
+
+
 📘 1. Introduction au project : Libvirt Graphical Interface
 
 Interface web complète en React + C/libvirt permettant de gérer un hyperviseur KVM :
